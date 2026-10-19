@@ -1,0 +1,31 @@
+# CI workflow for this project.
+#
+# NOTE: this file is stored under docs/ in the repository. To activate it,
+# move it to .github/workflows/ci.yml in the repo — GitHub Actions only
+# reads workflow files from that location.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest -q
+      - name: Run demo smoke test
+        run: python -m governed_agent.demo
